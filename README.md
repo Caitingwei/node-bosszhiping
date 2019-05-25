@@ -8,6 +8,11 @@
 
 ----------
 
+## 演示
+
+- up自己弄了个前端职位的分析图表，通过爬取boss直聘数据
+[查看demo请戳这里](https://awei.fun/public/boss)（请用chrome手机模式预览）
+
 ## 依赖篇
 
 

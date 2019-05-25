@@ -3,9 +3,10 @@ import express from 'express';
 import path from 'path';
 import cookieParser from 'cookie-parser';
 import logger from 'morgan';
-import router from './routes/index';
-
+// import router from './routes/index';
+const cors = require('cors');
 const app = express();
+import offer from './routes/offer';
 
 // view engine setup
 app.set('views', path.join(__dirname, 'views'));
@@ -17,12 +18,40 @@ app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
 
-router(app);
+const corsOptions = {
+  origin: function (origin, callback) {
+    callback(null, true)
+  },
+  credentials: true,
+};
+app.options('*', cors(corsOptions)) // include before other routes
+app.use(cors(corsOptions));
+
+app.all('*', function (req, res, next) {
+  res.header('Access-Control-Allow-Headers', 'Content-Type,Content-Length, Authorization,Origin,Accept,X-Requested-With');
+  res.header('Access-Control-Allow-Origin', '*');
+  res.header('Access-Control-Allow-Methods', 'GET, POST, OPTIONS, PUT, PATCH, DELETE');
+  res.header('Access-Control-Allow-Credentials', true);
+  res.header('X-Powered-By', ' 3.2.1');
+  res.header('Content-Type', 'application/json;charset=utf-8');
+  if (req.method === 'OPTIONS') {
+    res.sendStatus(200);
+  } else {
+    next();
+  }
+});
+
+
+app.use('/api',offer);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
   next(createError(404));
 });
+
+
+
 
 import { pool } from './database/mysql';
 import Database from './models/initialize';
@@ -41,7 +70,7 @@ pool.getConnection(async (err, connection) => {
   await ProxyController.initTable(); // 初始化可用代理ip
   await CityControllers.initTable(); // 初始化地区表
   await MenuControllers.initTable(); // 初始化职位菜单
-  TaskControllers.reptileScheduled(); // 启动任务
+  // TaskControllers.reptileScheduled(); // 启动任务
 });
 
 // error handler
